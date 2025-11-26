@@ -13,7 +13,12 @@ export async function assistantFunction(input: {
 
   // Check for API key
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
+  if (!apiKey || apiKey.trim() === '') {
+    console.error('GEMINI_API_KEY check failed:', {
+      exists: !!process.env.GEMINI_API_KEY,
+      length: process.env.GEMINI_API_KEY?.length || 0,
+      startsWith: process.env.GEMINI_API_KEY?.substring(0, 5) || 'N/A',
+    });
     throw new Error('GEMINI_API_KEY is not configured');
   }
 
