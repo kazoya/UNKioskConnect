@@ -3,19 +3,6 @@ import { assistantFunction } from '@/ai/flows/assistant-flow';
 
 export async function POST(request: NextRequest) {
   try {
-    // Check API key first before processing
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey || apiKey.trim() === '') {
-      console.error('GEMINI_API_KEY is missing or empty');
-      return NextResponse.json(
-        { 
-          error: 'Gemini API key is not configured. Please set GEMINI_API_KEY in your Vercel environment variables.',
-          code: 'MISSING_API_KEY'
-        },
-        { status: 500 }
-      );
-    }
-
     const body = await request.json();
     const { message, conversationHistory = [] } = body;
 
@@ -44,11 +31,11 @@ export async function POST(request: NextRequest) {
     });
     
     // Check if it's a missing API key error
-    if (error.message?.includes('GEMINI_API_KEY is not configured') || 
-        error.message?.includes('API key') && error.message?.includes('not configured')) {
+    if (error.message?.includes('not configured') || 
+        (error.message?.includes('API key') && error.message?.includes('not configured'))) {
       return NextResponse.json(
         { 
-          error: 'Gemini API key is not configured. Please set GEMINI_API_KEY in your Vercel environment variables and redeploy.',
+          error: 'No AI API key configured. Please set DEEPSEEK_API_KEY (recommended, free & simple) or GEMINI_API_KEY in your Vercel environment variables and redeploy.',
           code: 'MISSING_API_KEY'
         },
         { status: 500 }
