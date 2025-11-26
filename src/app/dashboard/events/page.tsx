@@ -68,7 +68,16 @@ export default function EventsPage() {
   };
 
   const getValidImageUrl = (url: string) => {
-    return placeholderImageSrcs.includes(url) ? url : placeholderImageSrcs[0];
+    // If URL is empty or invalid, use placeholder
+    if (!url || url.trim() === '') {
+      return placeholderImageSrcs[0];
+    }
+    // If it's a placeholder URL, return it as is
+    if (placeholderImageSrcs.includes(url)) {
+      return url;
+    }
+    // Otherwise, it's a real uploaded image URL (Supabase or external), return it
+    return url;
   }
   
   const findImageHint = (imageUrl: string) => {
@@ -121,6 +130,7 @@ export default function EventsPage() {
                   style={{ objectFit: 'cover' }}
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   data-ai-hint={findImageHint(imageUrl)}
+                  unoptimized={!imageUrl.includes('supabase.co') && !imageUrl.includes('firebasestorage.googleapis.com')}
                 />
               </div>
               <CardHeader>

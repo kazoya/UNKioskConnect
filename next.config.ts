@@ -51,6 +51,18 @@ const nextConfig: NextConfig = {
         hostname: '*.supabase.co',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'png.pngtree.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.pngtree.com',
+        port: '',
+        pathname: '/**',
       }
     ],
   },
