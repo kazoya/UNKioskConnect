@@ -43,7 +43,25 @@ A modern, multilingual event management and booking system built with Next.js, F
 - **Arabic**: Cairo - Optimized for Arabic text rendering
 - **Headings**: Bold, clear hierarchy
 
-## 🚀 Getting Started
+## 🚀 Quick Start
+
+### Deploy to Vercel (Recommended)
+
+1. **Push to GitHub** (see [DEPLOYMENT.md](./DEPLOYMENT.md) for details):
+   ```bash
+   git remote add origin https://github.com/YOUR_USERNAME/UNKioskConnect.git
+   git push -u origin main
+   ```
+
+2. **Deploy to Vercel**:
+   - Go to [vercel.com](https://vercel.com) and sign in with GitHub
+   - Click "Add New Project" → Import your repository
+   - Add Firebase environment variables in Vercel settings
+   - Click "Deploy"
+
+   See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed instructions.
+
+## 🚀 Getting Started (Local Development)
 
 ### Prerequisites
 - Node.js 18+ and npm
