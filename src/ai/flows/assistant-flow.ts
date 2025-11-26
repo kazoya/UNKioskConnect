@@ -17,8 +17,9 @@ export async function assistantFunction(input: {
   }
 
   // Initialize Google Generative AI
+  // Using gemini-1.5-flash which is available on the free tier
   const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
   // Build conversation history
   const history = conversationHistory.map((msg: { role: string; content: string }) => ({

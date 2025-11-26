@@ -36,6 +36,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Check for quota/rate limit errors
+    if (error.message?.includes('429') || error.message?.includes('quota') || error.message?.includes('rate limit') || error.message?.includes('Too Many Requests')) {
+      const retryAfter = error.message.match(/retry in ([\d.]+)s/i)?.[1];
+      return NextResponse.json(
+        { 
+          error: 'API quota exceeded. Please wait a moment and try again. If this persists, check your Google AI Studio quota limits.',
+          code: 'QUOTA_EXCEEDED',
+          retryAfter: retryAfter ? Math.ceil(parseFloat(retryAfter)) : 60
+        },
+        { status: 429 }
+      );
+    }
+
+    // Check for model availability errors
+    if (error.message?.includes('model') && (error.message?.includes('not found') || error.message?.includes('not available'))) {
+      return NextResponse.json(
+        { 
+          error: 'The selected AI model is not available. Please check your API key permissions or try a different model.',
+          code: 'MODEL_UNAVAILABLE'
+        },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json(
       { error: error.message || 'Failed to get response from assistant' },
       { status: 500 }

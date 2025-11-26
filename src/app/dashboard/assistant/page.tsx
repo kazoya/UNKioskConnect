@@ -80,6 +80,21 @@ export default function AssistantPage() {
             description: 'Please configure GEMINI_API_KEY in your environment variables.',
             variant: 'destructive',
           });
+        } else if (data.code === 'QUOTA_EXCEEDED') {
+          const retryAfter = data.retryAfter || 60;
+          toast({
+            title: 'Rate Limit Exceeded',
+            description: `API quota exceeded. Please wait ${retryAfter} seconds and try again.`,
+            variant: 'destructive',
+          });
+          throw new Error(data.error || 'Rate limit exceeded. Please try again later.');
+        } else if (data.code === 'MODEL_UNAVAILABLE') {
+          toast({
+            title: 'Model Unavailable',
+            description: 'The AI model is not available. Please check your API configuration.',
+            variant: 'destructive',
+          });
+          throw new Error(data.error || 'Model unavailable');
         } else {
           throw new Error(data.error || 'Failed to get response');
         }
