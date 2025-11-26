@@ -89,9 +89,10 @@ export default function AssistantPage() {
           });
           throw new Error(data.error || 'Rate limit exceeded. Please try again later.');
         } else if (data.code === 'MODEL_UNAVAILABLE') {
+          setApiKeyError(true);
           toast({
             title: 'Model Unavailable',
-            description: 'The AI model is not available. Please check your API configuration.',
+            description: 'Gemini model issues detected. We recommend using DeepSeek API instead. See DEEPSEEK_SETUP.md for setup instructions.',
             variant: 'destructive',
           });
           throw new Error(data.error || 'Model unavailable');
@@ -149,17 +150,20 @@ export default function AssistantPage() {
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            <strong>Gemini API Key Required:</strong> Please set the GEMINI_API_KEY environment variable.
-            Get your API key from{' '}
+            <strong>API Key Required:</strong> We recommend using <strong>DeepSeek API</strong> (simple, free, reliable).
+            <br />
+            Get your DeepSeek API key from{' '}
             <a
-              href="https://aistudio.google.com/apikey"
+              href="https://platform.deepseek.com/"
               target="_blank"
               rel="noopener noreferrer"
-              className="underline"
+              className="underline font-semibold"
             >
-              Google AI Studio
+              DeepSeek Platform
             </a>
-            .
+            {' '}and set <code className="bg-muted px-1 rounded">DEEPSEEK_API_KEY</code> in Vercel.
+            <br />
+            <span className="text-xs mt-1 block">Alternatively, you can use Gemini API, but it has more issues.</span>
           </AlertDescription>
         </Alert>
       )}

@@ -55,11 +55,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check for model availability errors
-    if (error.message?.includes('model') && (error.message?.includes('not found') || error.message?.includes('not available'))) {
+    // Check for model availability errors (usually Gemini issues)
+    if (error.message?.includes('model') && (error.message?.includes('not found') || error.message?.includes('not available')) ||
+        error.message?.includes('selected AI model')) {
       return NextResponse.json(
         { 
-          error: 'The selected AI model is not available. Please check your API key permissions or try a different model.',
+          error: 'Gemini model not available. We recommend using DeepSeek API instead (it\'s simpler and more reliable). Set DEEPSEEK_API_KEY in Vercel environment variables. See DEEPSEEK_SETUP.md for instructions.',
           code: 'MODEL_UNAVAILABLE'
         },
         { status: 500 }
