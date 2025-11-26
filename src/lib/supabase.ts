@@ -10,6 +10,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: false, // We're using Firebase Auth, not Supabase Auth
+    autoRefreshToken: false,
   },
 });
 
