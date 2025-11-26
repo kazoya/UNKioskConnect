@@ -40,7 +40,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 import placeholderImages from '@/lib/placeholder-images.json';
-import { useFirebaseApp, useStorage } from '@/firebase';
 import { uploadImage, getEventImagePath } from '@/lib/storage';
 
 const placeholderImageSrcs = placeholderImages.events.map(img => img.src);
@@ -50,8 +49,6 @@ export default function AdminEventsPage() {
   const router = useRouter();
   const { data: events, loading: eventsLoading } = useCollection<Event>(['events']);
   const firestore = useFirestore();
-  const storage = useStorage();
-  const app = useFirebaseApp();
   const { toast } = useToast();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
@@ -89,11 +86,11 @@ export default function AdminEventsPage() {
     let imageUrl = values.imageUrl;
 
     // Upload image file if provided
-    if (imageFile && storage) {
+    if (imageFile) {
       try {
         const eventId = editingEvent?.id || `temp_${Date.now()}`;
         const imagePath = getEventImagePath(eventId, imageFile.name);
-        imageUrl = await uploadImage(storage, imageFile, imagePath);
+        imageUrl = await uploadImage(imageFile, imagePath, 'events');
         toast({ 
           title: 'Image Uploaded', 
           description: 'Image uploaded successfully.' 
@@ -102,17 +99,13 @@ export default function AdminEventsPage() {
         console.error('Upload error:', error);
         let errorMessage = 'Failed to upload image.';
         
-        // Handle specific Firebase Storage errors
-        if (error.code === 'storage/unauthorized') {
-          errorMessage = 'You do not have permission to upload images. Please check Firebase Storage security rules.';
-        } else if (error.code === 'storage/canceled') {
-          errorMessage = 'Upload was canceled.';
-        } else if (error.code === 'storage/quota-exceeded') {
-          errorMessage = 'Storage quota exceeded. Please contact administrator.';
-        } else if (error.code === 'storage/unauthenticated') {
-          errorMessage = 'You must be signed in to upload images.';
-        } else if (error.message) {
+        // Handle Supabase Storage errors
+        if (error.message) {
           errorMessage = error.message;
+        } else if (error.statusCode === 401) {
+          errorMessage = 'You do not have permission to upload images.';
+        } else if (error.statusCode === 413) {
+          errorMessage = 'File is too large. Maximum size is 5MB.';
         }
         
         toast({

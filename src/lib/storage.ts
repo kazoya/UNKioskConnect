@@ -1,33 +1,41 @@
-import { ref, uploadBytes, getDownloadURL, UploadMetadata } from 'firebase/storage';
-import { FirebaseStorage } from 'firebase/storage';
+import { supabase } from './supabase';
 
 /**
- * Upload an image file to Firebase Storage
- * @param storage - Firebase Storage instance
+ * Upload an image file to Supabase Storage
  * @param file - File to upload
  * @param path - Storage path (e.g., 'events/image.jpg')
+ * @param bucket - Storage bucket name (default: 'events')
  * @returns Promise with the download URL
  */
 export async function uploadImage(
-  storage: FirebaseStorage,
   file: File,
-  path: string
+  path: string,
+  bucket: string = 'events'
 ): Promise<string> {
-  const storageRef = ref(storage, path);
-  
-  // Set metadata for the upload
-  const metadata: UploadMetadata = {
-    contentType: file.type,
-    cacheControl: 'public, max-age=31536000', // Cache for 1 year
-  };
-  
-  // Upload file with metadata
-  await uploadBytes(storageRef, file, metadata);
-  
-  // Get download URL
-  const downloadURL = await getDownloadURL(storageRef);
-  
-  return downloadURL;
+  // Upload file to Supabase Storage
+  const { data, error } = await supabase.storage
+    .from(bucket)
+    .upload(path, file, {
+      contentType: file.type,
+      cacheControl: '3600',
+      upsert: false, // Don't overwrite existing files
+    });
+
+  if (error) {
+    console.error('Supabase upload error:', error);
+    throw new Error(error.message || 'Failed to upload image');
+  }
+
+  // Get public URL
+  const { data: urlData } = supabase.storage
+    .from(bucket)
+    .getPublicUrl(path);
+
+  if (!urlData?.publicUrl) {
+    throw new Error('Failed to get image URL');
+  }
+
+  return urlData.publicUrl;
 }
 
 /**
