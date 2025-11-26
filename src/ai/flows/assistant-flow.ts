@@ -28,7 +28,7 @@ export async function assistantFunction(input: {
   // List of models to try (in order of preference - all free tier compatible)
   // gemini-pro is the most widely available on free tier
   const modelsToTry = [
-    'gemini-pro',             // Most reliable free tier model
+    'gemini-pro',             // Most reliable free tier model (original)
     'gemini-1.5-flash',       // Fast, newer free tier model
     'gemini-1.5-pro',         // More capable, newer free tier model
   ];
@@ -47,6 +47,8 @@ export async function assistantFunction(input: {
   
   for (const modelName of modelsToTry) {
     try {
+      console.log(`Attempting to use model: ${modelName}`);
+      
       const model = genAI.getGenerativeModel({ 
         model: modelName,
         systemInstruction: systemInstruction,
@@ -76,35 +78,48 @@ export async function assistantFunction(input: {
       const response = result.response;
       const text = response.text();
 
+      console.log(`Successfully used model: ${modelName}`);
+      
       // Success! Return the response
       return {
         response: text || 'I apologize, but I could not generate a response.',
       };
     } catch (error: any) {
       lastError = error;
+      const errorMsg = (error.message || '').toLowerCase();
       console.warn(`Model ${modelName} failed:`, error.message);
       
       // If it's a model availability error, try next model
-      if (error.message?.includes('not available') || 
-          error.message?.includes('404') || 
-          error.message?.includes('not found') ||
-          error.message?.includes('Model') && error.message?.includes('not')) {
+      if (errorMsg.includes('not available') || 
+          errorMsg.includes('404') || 
+          errorMsg.includes('not found') ||
+          (errorMsg.includes('model') && (errorMsg.includes('not') || errorMsg.includes('invalid'))) ||
+          errorMsg.includes('permission denied') ||
+          (errorMsg.includes('api key') && errorMsg.includes('permission')) ||
+          errorMsg.includes('selected ai model')) {
+        console.log(`Model ${modelName} not available, trying next...`);
         continue; // Try next model
       }
       
       // If it's a quota/rate limit error, throw it (no point trying other models)
-      if (error.message?.includes('429') || error.message?.includes('quota') || error.message?.includes('rate limit')) {
+      if (errorMsg.includes('429') || errorMsg.includes('quota') || errorMsg.includes('rate limit')) {
         throw error;
       }
       
+      // For API key errors, throw immediately
+      if (errorMsg.includes('api key') && (errorMsg.includes('invalid') || errorMsg.includes('unauthorized'))) {
+        throw new Error('Invalid API key. Please check your GEMINI_API_KEY in Vercel environment variables.');
+      }
+      
       // For other errors, try next model
+      console.log(`Model ${modelName} error (${error.message}), trying next...`);
       continue;
     }
   }
 
   // If all models failed, throw a helpful error
   throw new Error(
-    `None of the available models (${modelsToTry.join(', ')}) are accessible. ` +
-    `Please check your API key permissions. Last error: ${lastError?.message || 'Unknown error'}`
+    `None of the available models (${modelsToTry.join(', ')}) are accessible with your API key. ` +
+    `Please verify your API key has access to Gemini models. Last error: ${lastError?.message || 'Unknown error'}`
   );
 }
