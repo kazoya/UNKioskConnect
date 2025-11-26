@@ -69,8 +69,20 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error('Supabase upload error:', error);
+      
+      // Provide more helpful error messages
+      let errorMessage = error.message || 'Failed to upload image';
+      
+      if (error.message?.includes('Bucket not found') || error.message?.includes('not found')) {
+        errorMessage = 'Storage bucket "events" not found. Please create it in Supabase Dashboard → Storage → New bucket. Make sure it is set to Public.';
+      } else if (error.message?.includes('new row violates row-level security policy')) {
+        errorMessage = 'Permission denied. Please check storage policies in Supabase.';
+      } else if (error.message?.includes('already exists')) {
+        errorMessage = 'File already exists. Please try again.';
+      }
+      
       return NextResponse.json(
-        { error: error.message || 'Failed to upload image' },
+        { error: errorMessage },
         { status: 500 }
       );
     }
