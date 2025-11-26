@@ -6,17 +6,29 @@ Your Supabase credentials:
 - **URL**: `https://furawqjxkmqezputamrf.supabase.co`
 - **Anon Key**: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
 
-## Step 1: Add to Vercel Environment Variables
+## Step 1: Get Service Role Key (Important!)
+
+Since we're using Firebase Auth (not Supabase Auth), we need the service role key for server-side uploads:
+
+1. Go to [Supabase Dashboard](https://supabase.com/dashboard/project/furawqjxkmqezputamrf)
+2. Click **Settings** → **API**
+3. Find **service_role key** (⚠️ Keep this secret!)
+4. Copy it - you'll need it for Vercel
+
+## Step 2: Add to Vercel Environment Variables
 
 1. Go to [Vercel Dashboard](https://vercel.com/dashboard)
 2. Select your project: `unkioskconnecti`
 3. Go to **Settings** → **Environment Variables**
-4. Add these two variables:
+4. Add these **three** variables:
 
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://furawqjxkmqezputamrf.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1cmF3cWp4a21xZXpwdXRhbXJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQxODM2MTAsImV4cCI6MjA3OTc1OTYxMH0.pEC1ZNPkl120zW3IbKcGe4uXMYGcjP0XsPYbEC7dsDY
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
 ```
+
+⚠️ **Important**: The `SUPABASE_SERVICE_ROLE_KEY` is used server-side only and bypasses RLS policies.
 
 5. Add them for **all environments** (Production, Preview, Development)
 6. **Redeploy** your application
@@ -35,46 +47,23 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzd
 
 ## Step 3: Configure Storage Policies
 
-After creating the bucket, set up policies:
+Since we're using a server-side API route with service role key, we can use simpler policies:
 
-### Policy 1: Public Read Access
+### Option A: Simple Public Policies (Recommended)
 
 1. Go to Storage → `events` bucket → **Policies** tab
-2. Click **New Policy**
-3. Select **For full customization**
-4. Configure:
+2. Click **New Policy** → **For full customization**
+3. Configure:
    - **Policy name**: `Public Read Access`
    - **Allowed operation**: `SELECT`
-   - **Policy definition**:
-   ```sql
-   true
-   ```
-5. Click **Review** → **Save policy**
-
-### Policy 2: Authenticated Upload
-
-1. Click **New Policy** again
-2. Select **For full customization**
-3. Configure:
-   - **Policy name**: `Authenticated Upload`
-   - **Allowed operation**: `INSERT`
-   - **Policy definition**:
-   ```sql
-   auth.role() = 'authenticated'
-   ```
+   - **Policy definition**: `true`
 4. Click **Review** → **Save policy**
 
-### Policy 3: Authenticated Update (Optional)
+That's it! The server-side API route uses the service role key which bypasses RLS, so we don't need upload policies.
 
-1. Click **New Policy**
-2. Configure:
-   - **Policy name**: `Authenticated Update`
-   - **Allowed operation**: `UPDATE`
-   - **Policy definition**:
-   ```sql
-   auth.role() = 'authenticated'
-   ```
-3. Click **Review** → **Save policy**
+### Option B: If you want client-side uploads (Advanced)
+
+If you want to allow direct client-side uploads, you'd need to set up Supabase Auth, which is more complex. The server-side approach (Option A) is recommended.
 
 ## Step 4: Test the Upload
 
