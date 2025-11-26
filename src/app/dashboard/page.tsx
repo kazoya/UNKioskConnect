@@ -7,7 +7,7 @@ import {
   CardDescription,
   CardContent,
 } from '@/components/ui/card';
-import { User, Calendar, LogOut, ArrowRight, Settings, PlusCircle } from 'lucide-react';
+import { User, Calendar, LogOut, ArrowRight, Settings, PlusCircle, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
 import { useUser } from '@/firebase';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -59,6 +59,13 @@ export default function DashboardPage() {
       href: '/dashboard/admin/users',
       icon: <User className="h-12 w-12 text-accent" />,
       show: isAdmin,
+    },
+    {
+      title: t('dashboard.aiAssistant'),
+      description: t('dashboard.aiAssistantDesc'),
+      href: '/dashboard/assistant',
+      icon: <MessageSquare className="h-12 w-12 text-accent" />,
+      show: true,
     },
   ];
 

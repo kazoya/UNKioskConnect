@@ -56,6 +56,8 @@ const translations: Record<Locale, Translations> = {
       manageEventsDesc: 'Admin: Create, edit, or remove events.',
       manageUsers: 'Manage Users',
       manageUsersDesc: 'Admin: View and manage user roles.',
+      aiAssistant: 'AI Assistant',
+      aiAssistantDesc: 'Get help and answers from the AI assistant.',
       logoutDesc: 'End your session and return to the login screen.',
     },
     app: {
@@ -121,6 +123,8 @@ const translations: Record<Locale, Translations> = {
       manageEventsDesc: 'المسؤول: إنشاء أو تعديل أو حذف الفعاليات.',
       manageUsers: 'إدارة المستخدمين',
       manageUsersDesc: 'المسؤول: عرض وإدارة أدوار المستخدمين.',
+      aiAssistant: 'المساعد الذكي',
+      aiAssistantDesc: 'احصل على المساعدة والإجابات من المساعد الذكي.',
       logoutDesc: 'إنهاء جلستك والعودة إلى شاشة تسجيل الدخول.',
     },
     app: {
