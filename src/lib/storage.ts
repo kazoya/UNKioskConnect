@@ -1,4 +1,4 @@
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { ref, uploadBytes, getDownloadURL, UploadMetadata } from 'firebase/storage';
 import { FirebaseStorage } from 'firebase/storage';
 
 /**
@@ -15,8 +15,14 @@ export async function uploadImage(
 ): Promise<string> {
   const storageRef = ref(storage, path);
   
-  // Upload file
-  await uploadBytes(storageRef, file);
+  // Set metadata for the upload
+  const metadata: UploadMetadata = {
+    contentType: file.type,
+    cacheControl: 'public, max-age=31536000', // Cache for 1 year
+  };
+  
+  // Upload file with metadata
+  await uploadBytes(storageRef, file, metadata);
   
   // Get download URL
   const downloadURL = await getDownloadURL(storageRef);

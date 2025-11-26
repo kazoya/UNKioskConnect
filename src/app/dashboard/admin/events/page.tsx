@@ -20,6 +20,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { EventForm, EventFormValues } from './event-form';
@@ -288,6 +289,11 @@ export default function AdminEventsPage() {
           <DialogTitle>
             {editingEvent ? 'Edit Event' : 'Create New Event'}
           </DialogTitle>
+          <DialogDescription>
+            {editingEvent 
+              ? 'Update the event details below. Changes will be saved immediately.' 
+              : 'Fill in the details to create a new event. You can upload an image or provide an image URL.'}
+          </DialogDescription>
         </DialogHeader>
         <EventForm
           onSubmit={handleFormSubmit}
