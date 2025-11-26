@@ -67,15 +67,31 @@ export default function AdminEventsPage() {
   }, [user, claims, userLoading, isAdmin, router]);
 
   const handleFormSubmit = async (values: EventFormValues, imageFile?: File | null) => {
-    if (!firestore) return;
+    if (!firestore) {
+      toast({
+        title: 'Error',
+        description: 'Firestore is not initialized.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!user) {
+      toast({
+        title: 'Authentication Required',
+        description: 'Please sign in to create or edit events.',
+        variant: 'destructive',
+      });
+      return;
+    }
     
     setIsUploading(true);
     let imageUrl = values.imageUrl;
 
     // Upload image file if provided
-    if (imageFile && storage && app) {
+    if (imageFile && storage) {
       try {
-        const eventId = editingEvent?.id || 'new';
+        const eventId = editingEvent?.id || `temp_${Date.now()}`;
         const imagePath = getEventImagePath(eventId, imageFile.name);
         imageUrl = await uploadImage(storage, imageFile, imagePath);
         toast({ 
@@ -83,9 +99,25 @@ export default function AdminEventsPage() {
           description: 'Image uploaded successfully.' 
         });
       } catch (error: any) {
+        console.error('Upload error:', error);
+        let errorMessage = 'Failed to upload image.';
+        
+        // Handle specific Firebase Storage errors
+        if (error.code === 'storage/unauthorized') {
+          errorMessage = 'You do not have permission to upload images. Please check Firebase Storage security rules.';
+        } else if (error.code === 'storage/canceled') {
+          errorMessage = 'Upload was canceled.';
+        } else if (error.code === 'storage/quota-exceeded') {
+          errorMessage = 'Storage quota exceeded. Please contact administrator.';
+        } else if (error.code === 'storage/unauthenticated') {
+          errorMessage = 'You must be signed in to upload images.';
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+        
         toast({
           title: 'Upload Error',
-          description: error.message || 'Failed to upload image.',
+          description: errorMessage,
           variant: 'destructive',
         });
         setIsUploading(false);
