@@ -39,6 +39,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 import placeholderImages from '@/lib/placeholder-images.json';
+import { useFirebaseApp, useStorage } from '@/firebase';
+import { uploadImage, getEventImagePath } from '@/lib/storage';
 
 const placeholderImageSrcs = placeholderImages.events.map(img => img.src);
 
@@ -47,9 +49,12 @@ export default function AdminEventsPage() {
   const router = useRouter();
   const { data: events, loading: eventsLoading } = useCollection<Event>(['events']);
   const firestore = useFirestore();
+  const storage = useStorage();
+  const app = useFirebaseApp();
   const { toast } = useToast();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const isAdmin = claims?.role === 'admin';
 
@@ -60,11 +65,36 @@ export default function AdminEventsPage() {
     }
   }, [user, claims, userLoading, isAdmin, router]);
 
-  const handleFormSubmit = async (values: EventFormValues) => {
+  const handleFormSubmit = async (values: EventFormValues, imageFile?: File | null) => {
     if (!firestore) return;
+    
+    setIsUploading(true);
+    let imageUrl = values.imageUrl;
+
+    // Upload image file if provided
+    if (imageFile && storage && app) {
+      try {
+        const eventId = editingEvent?.id || 'new';
+        const imagePath = getEventImagePath(eventId, imageFile.name);
+        imageUrl = await uploadImage(storage, imageFile, imagePath);
+        toast({ 
+          title: 'Image Uploaded', 
+          description: 'Image uploaded successfully.' 
+        });
+      } catch (error: any) {
+        toast({
+          title: 'Upload Error',
+          description: error.message || 'Failed to upload image.',
+          variant: 'destructive',
+        });
+        setIsUploading(false);
+        return;
+      }
+    }
     
     const eventPayload = {
         ...values,
+        imageUrl,
         date: new Date(values.date),
     };
 
@@ -74,6 +104,8 @@ export default function AdminEventsPage() {
       updateDoc(eventDocRef, eventPayload)
       .then(() => {
         toast({ title: 'Success', description: 'Event updated successfully.' });
+        setIsFormOpen(false);
+        setEditingEvent(null);
       })
       .catch((serverError) => {
         const permissionError = new FirestorePermissionError({
@@ -82,13 +114,16 @@ export default function AdminEventsPage() {
             requestResourceData: eventPayload
         });
         errorEmitter.emit('permission-error', permissionError);
-      });
+      })
+      .finally(() => setIsUploading(false));
     } else {
       // Add new event
       const eventsColRef = collection(firestore, 'events');
       addDoc(eventsColRef, eventPayload)
       .then(() => {
         toast({ title: 'Success', description: 'Event created successfully.' });
+        setIsFormOpen(false);
+        setEditingEvent(null);
       })
       .catch((serverError) => {
         const permissionError = new FirestorePermissionError({
@@ -97,10 +132,9 @@ export default function AdminEventsPage() {
             requestResourceData: eventPayload
         });
         errorEmitter.emit('permission-error', permissionError);
-      });
+      })
+      .finally(() => setIsUploading(false));
     }
-    setIsFormOpen(false);
-    setEditingEvent(null);
   };
 
   const handleDeleteEvent = async (eventId: string) => {
@@ -258,6 +292,7 @@ export default function AdminEventsPage() {
         <EventForm
           onSubmit={handleFormSubmit}
           defaultValues={editingEvent}
+          isSubmitting={isUploading}
         />
       </DialogContent>
     </Dialog>

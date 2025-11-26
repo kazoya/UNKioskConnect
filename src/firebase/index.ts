@@ -9,6 +9,7 @@ import {
   useFirebaseApp,
   useFirestore,
   useAuth,
+  useStorage,
 } from './provider';
 
 export {
@@ -16,6 +17,7 @@ export {
   useFirebaseApp,
   useFirestore,
   useAuth,
+  useStorage,
   useUser,
   useCollection,
   useDoc,

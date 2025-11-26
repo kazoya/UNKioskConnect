@@ -10,18 +10,21 @@ import React, {
 import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
 import { getAuth, Auth } from 'firebase/auth';
 import { getFirestore, Firestore } from 'firebase/firestore';
+import { getStorage, FirebaseStorage } from 'firebase/storage';
 import { firebaseConfig } from './config';
 
 interface FirebaseContextValue {
   app: FirebaseApp | null;
   auth: Auth | null;
   firestore: Firestore | null;
+  storage: FirebaseStorage | null;
 }
 
 const FirebaseContext = createContext<FirebaseContextValue>({
   app: null,
   auth: null,
   firestore: null,
+  storage: null,
 });
 
 export const FirebaseProvider = ({
@@ -46,14 +49,16 @@ export const FirebaseProvider = ({
 
   const auth = useMemo(() => (app ? getAuth(app) : null), [app]);
   const firestore = useMemo(() => (app ? getFirestore(app) : null), [app]);
+  const storage = useMemo(() => (app ? getStorage(app) : null), [app]);
 
   return (
-    <FirebaseContext.Provider value={{ app, auth, firestore }}>
+    <FirebaseContext.Provider value={{ app, auth, firestore, storage }}>
       {children}
     </FirebaseContext.Provider>
   );
 };
 
 export const useFirebaseApp = () => useContext(FirebaseContext)?.app;
+export const useStorage = () => useContext(FirebaseContext)?.storage;
 export const useAuth = () => useContext(FirebaseContext)?.auth;
 export const useFirestore = () => useContext(FirebaseContext)?.firestore;

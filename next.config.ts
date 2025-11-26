@@ -33,6 +33,18 @@ const nextConfig: NextConfig = {
         hostname: 'www.conference2go.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'firebasestorage.googleapis.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.googleapis.com',
+        port: '',
+        pathname: '/**',
       }
     ],
   },
