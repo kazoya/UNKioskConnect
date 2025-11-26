@@ -1,0 +1,24 @@
+{
+  "events": [
+    {
+      "src": "https://www.conference2go.com/wp-content/uploads/2025/01/ICRBME.png",
+      "hint": "research conference"
+    },
+    {
+      "src": "https://picsum.photos/seed/2/600/400",
+      "hint": "team workshop"
+    },
+    {
+      "src": "https://picsum.photos/seed/3/600/400",
+      "hint": "product launch"
+    },
+    {
+      "src": "https://picsum.photos/seed/4/600/400",
+      "hint": "annual gala"
+    },
+    {
+      "src": "https://picsum.photos/seed/5/600/400",
+      "hint": "networking event"
+    }
+  ]
+}

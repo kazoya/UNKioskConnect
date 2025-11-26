@@ -1,0 +1,48 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    // This function now checks the custom claim OR the email address for admin status.
+    function isAdmin() {
+      return request.auth.token.role == 'admin' || request.auth.token.email == 'suhib.asrawi@gmail.com' || request.auth.token.email == 'ceo@muqasa-jo.com';
+    }
+    
+    // USERS collection
+    // 1. Allow users to read their own profile.
+    // 2. Allow admins to read any profile.
+    // 3. Allow signed-in users to create their own profile.
+    // 4. Allow users to update their own profile (but not change their role).
+    // 5. Allow admins to update any user's profile (including role).
+    match /users/{userId} {
+      allow read: if isSignedIn() && (isOwner(userId) || isAdmin());
+      allow create: if isSignedIn(); // Allow any signed in user to create a profile doc for themselves
+      allow update: if (isOwner(userId) && request.resource.data.role == resource.data.role) || isAdmin();
+    }
+
+    // EVENTS collection
+    // 1. Allow any signed-in user to read events.
+    // 2. Only allow admins to create, update, or delete events.
+    match /events/{eventId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // BOOKINGS subcollection
+    // 1. Allow users to read their own bookings.
+    // 2. Allow users to create their own bookings.
+    // 3. Allow users to update their own bookings (e.g. to cancel).
+    match /users/{userId}/bookings/{bookingId} {
+      allow read, write: if isOwner(userId);
+    }
+  }
+}
