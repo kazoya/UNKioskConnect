@@ -55,11 +55,12 @@ export async function uploadImage(
  * Generate a unique file path for event images
  * @param eventId - Event ID (or 'new' for new events)
  * @param fileName - Original file name
- * @returns Storage path
+ * @returns Storage path (without bucket prefix, since bucket is specified separately)
  */
 export function getEventImagePath(eventId: string, fileName: string): string {
   const timestamp = Date.now();
   const sanitizedFileName = fileName.replace(/[^a-zA-Z0-9.-]/g, '_');
-  return `events/${eventId}_${timestamp}_${sanitizedFileName}`;
+  // Don't include 'events/' prefix since we're uploading to 'events' bucket
+  return `${eventId}_${timestamp}_${sanitizedFileName}`;
 }
 

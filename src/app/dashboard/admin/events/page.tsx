@@ -220,7 +220,16 @@ export default function AdminEventsPage() {
   }
 
   const getValidImageUrl = (url: string) => {
-    return placeholderImageSrcs.includes(url) ? url : placeholderImageSrcs[0];
+    // If URL is empty or invalid, use placeholder
+    if (!url || url.trim() === '') {
+      return placeholderImageSrcs[0];
+    }
+    // If it's a placeholder URL, return it as is
+    if (placeholderImageSrcs.includes(url)) {
+      return url;
+    }
+    // Otherwise, it's a real uploaded image URL (Supabase), return it
+    return url;
   }
 
   const findImageHint = (imageUrl: string) => {
