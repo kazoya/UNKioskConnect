@@ -3,14 +3,25 @@ import { createClient } from '@supabase/supabase-js';
 
 function getSupabaseClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  // Prefer service role key, fallback to anon key if not available
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  if (!supabaseUrl || !supabaseServiceKey) {
-    throw new Error('Supabase environment variables are not configured');
+  if (!supabaseUrl) {
+    throw new Error('NEXT_PUBLIC_SUPABASE_URL is not configured');
+  }
+
+  if (!supabaseServiceKey) {
+    throw new Error('SUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_ANON_KEY is not configured');
   }
 
   // Use service role key for server-side uploads (bypasses RLS)
-  return createClient(supabaseUrl, supabaseServiceKey);
+  // If using anon key, make sure storage policies allow public access
+  return createClient(supabaseUrl, supabaseServiceKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    },
+  });
 }
 
 export async function POST(request: NextRequest) {
@@ -75,10 +86,15 @@ export async function POST(request: NextRequest) {
       
       if (error.message?.includes('Bucket not found') || error.message?.includes('not found')) {
         errorMessage = 'Storage bucket "events" not found. Please create it in Supabase Dashboard → Storage → New bucket. Make sure it is set to Public.';
-      } else if (error.message?.includes('new row violates row-level security policy')) {
-        errorMessage = 'Permission denied. Please check storage policies in Supabase.';
+      } else if (error.message?.includes('new row violates row-level security policy') || 
+                 error.message?.includes('permission denied') ||
+                 error.message?.includes('Permission denied') ||
+                 error.statusCode === 403) {
+        errorMessage = 'Permission denied. Please create storage policies in Supabase: Go to Storage → events bucket → Policies → Create policies for SELECT and INSERT operations. See FIX_PERMISSION_DENIED.md for details.';
       } else if (error.message?.includes('already exists')) {
         errorMessage = 'File already exists. Please try again.';
+      } else if (error.message?.includes('JWT')) {
+        errorMessage = 'Authentication error. Please check SUPABASE_SERVICE_ROLE_KEY in Vercel environment variables.';
       }
       
       return NextResponse.json(
