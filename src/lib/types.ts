@@ -15,6 +15,9 @@ export interface Event {
   imageUrl: string;
   price: number;
   date: Timestamp;
+  capacity?: number; // Optional: Maximum number of bookings allowed
+  location?: string; // Optional: Event location
+  duration?: number; // Optional: Duration in minutes
 }
 
 export interface Booking {

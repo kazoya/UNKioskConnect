@@ -7,7 +7,7 @@ import {
   CardDescription,
   CardContent,
 } from '@/components/ui/card';
-import { User, Calendar, LogOut, ArrowRight, Settings, PlusCircle, MessageSquare } from 'lucide-react';
+import { User, Calendar, LogOut, ArrowRight, Settings, PlusCircle, MessageSquare, UserCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useUser } from '@/firebase';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -54,6 +54,13 @@ export default function DashboardPage() {
       show: isAdmin,
     },
     {
+      title: t('dashboard.calendar'),
+      description: t('dashboard.calendarDesc'),
+      href: '/dashboard/admin/calendar',
+      icon: <Calendar className="h-12 w-12 text-accent" />,
+      show: isAdmin,
+    },
+    {
       title: t('dashboard.manageUsers'),
       description: t('dashboard.manageUsersDesc'),
       href: '/dashboard/admin/users',
@@ -65,6 +72,13 @@ export default function DashboardPage() {
       description: t('dashboard.aiAssistantDesc'),
       href: '/dashboard/assistant',
       icon: <MessageSquare className="h-12 w-12 text-accent" />,
+      show: true,
+    },
+    {
+      title: t('dashboard.accountSettings'),
+      description: t('dashboard.accountSettingsDesc'),
+      href: '/dashboard/settings',
+      icon: <UserCircle className="h-12 w-12 text-accent" />,
       show: true,
     },
   ];

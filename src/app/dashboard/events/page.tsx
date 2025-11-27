@@ -11,7 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { useCollection, useFirestore, useUser } from '@/firebase';
 import type { Event, Booking } from '@/lib/types';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, query, where, getDocs, collectionGroup } from 'firebase/firestore';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -38,8 +38,50 @@ export default function EventsPage() {
 
   const loading = eventsLoading || bookingsLoading;
 
-  const handleBookEvent = (event: Event) => {
+  const handleBookEvent = async (event: Event) => {
     if (!firestore || !user) return;
+
+    // Check for double booking: Verify user hasn't already booked this event
+    try {
+      const userBookingsQuery = query(
+        collection(firestore, 'users', user.uid, 'bookings'),
+        where('eventId', '==', event.id),
+        where('status', '==', 'confirmed')
+      );
+      
+      const querySnapshot = await getDocs(userBookingsQuery);
+
+      if (!querySnapshot.empty) {
+        toast({
+          title: 'Already Booked',
+          description: 'You have already booked this event.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Optional: Check event capacity if capacity field exists
+      if (event.capacity) {
+        // Get all confirmed bookings for this event
+        const allBookingsQuery = query(
+          collectionGroup(firestore, 'bookings'),
+          where('eventId', '==', event.id),
+          where('status', '==', 'confirmed')
+        );
+        const allBookingsSnapshot = await getDocs(allBookingsQuery);
+        
+        if (allBookingsSnapshot.size >= event.capacity) {
+          toast({
+            title: 'Event Full',
+            description: 'This event has reached its capacity.',
+            variant: 'destructive',
+          });
+          return;
+        }
+      }
+    } catch (error) {
+      console.warn('Double booking check failed, proceeding anyway:', error);
+    }
 
     const bookingPayload = {
       userId: user.uid,
