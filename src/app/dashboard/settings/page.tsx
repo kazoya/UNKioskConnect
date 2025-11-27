@@ -4,35 +4,40 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useUser } from '@/firebase';
+import { useUser, useAuth, useFirestore } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
-import { useState } from 'react';
-import { useFirestore } from '@/firebase';
+import { useState, useEffect } from 'react';
 import { doc, updateDoc } from 'firebase/firestore';
+import { updateProfile } from 'firebase/auth';
 import { User, Mail, Save } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useI18n } from '@/lib/i18n';
 
 export default function SettingsPage() {
   const { user } = useUser();
+  const auth = useAuth();
   const firestore = useFirestore();
   const { toast } = useToast();
   const { t } = useI18n();
   const [displayName, setDisplayName] = useState(user?.displayName || '');
   const [isSaving, setIsSaving] = useState(false);
 
+  // Update displayName when user changes
+  // Fixed: useAuth hook moved to component top level to resolve React error #321
+  useEffect(() => {
+    if (user?.displayName) {
+      setDisplayName(user.displayName);
+    }
+  }, [user?.displayName]);
+
   const handleSave = async () => {
-    if (!firestore || !user) return;
+    if (!firestore || !user || !auth?.currentUser) return;
 
     setIsSaving(true);
     try {
       // Update Firebase Auth profile
-      const { updateProfile } = await import('firebase/auth');
-      const { useAuth } = await import('@/firebase');
-      const auth = useAuth();
-      
-      if (auth && displayName.trim()) {
-        await updateProfile(auth.currentUser!, {
+      if (displayName.trim()) {
+        await updateProfile(auth.currentUser, {
           displayName: displayName.trim(),
         });
       }
