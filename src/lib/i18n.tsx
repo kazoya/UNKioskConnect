@@ -81,6 +81,16 @@ const translations: Record<Locale, Translations> = {
       english: 'English',
       arabic: 'العربية',
     },
+    maintenance: {
+      title: 'Maintenance Notice',
+      message: 'We have submitted a set of clarification questions to UNHCR regarding kiosk requirements (biometrics, hardware specifications, workflow details, API integration, etc.). The platform is currently being maintained and optimized while we wait for their official responses. The system structure, modules, and UI are being prepared to be fully ready for rapid finalization once the answers are received.',
+      statusTitle: 'Current Maintenance Activities',
+      status1: 'Clarification questions submitted to UNHCR regarding kiosk requirements',
+      status2: 'Platform maintenance and optimization in progress',
+      status3: 'System structure, modules, and UI being prepared for rapid finalization',
+      status4: 'Codebase, UI, and backend components being stabilized and documented',
+      reassurance: 'Maintenance is ongoing and updates will align with UNHCR\'s upcoming clarifications. Once responses are received, we will immediately implement final adjustments with minimal overhead.',
+    },
   },
   ar: {
     common: {
@@ -153,6 +163,16 @@ const translations: Record<Locale, Translations> = {
       switch: 'تغيير اللغة',
       english: 'English',
       arabic: 'العربية',
+    },
+    maintenance: {
+      title: 'تنويه الصيانة',
+      message: 'تم إرسال مجموعة استفسارات تقنية إلى مفوضية الأمم المتحدة السامية لشؤون اللاجئين (UNHCR) بخصوص متطلبات الأكشاك (التحقق البيومتري، مواصفات الأجهزة، تفاصيل تدفقات العمل، تكامل API، وغيرها). يجري حالياً تنفيذ أعمال صيانة وتحسين للمنصة إلى حين وصول الردود الرسمية. يتم إعداد هيكل النظام والوحدات والواجهة لتكون جاهزة بالكامل للاستكمال السريع فور استلام الإجابات.',
+      statusTitle: 'أنشطة الصيانة الحالية',
+      status1: 'تم إرسال استفسارات توضيحية إلى UNHCR بخصوص متطلبات الأكشاك',
+      status2: 'جاري تنفيذ أعمال الصيانة والتحسين للمنصة',
+      status3: 'يتم إعداد هيكل النظام والوحدات والواجهة للاستكمال السريع',
+      status4: 'يتم تثبيت وتوثيق مكونات قاعدة الكود والواجهة والخلفية',
+      reassurance: 'الصيانة مستمرة وستتماشى التحديثات مع التوضيحات القادمة من UNHCR. فور استلام الردود، سنقوم بتنفيذ التعديلات النهائية فوراً بأقل قدر من التعقيد.',
     },
   },
 };

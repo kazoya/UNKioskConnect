@@ -15,6 +15,7 @@ import { signOut } from 'firebase/auth';
 import { useAuth } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { useI18n } from '@/lib/i18n';
+import { MaintenanceNotice } from '@/components/maintenance-notice';
 
 export default function DashboardPage() {
   const { user, claims } = useUser();
@@ -86,6 +87,8 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-8">
+      <MaintenanceNotice />
+      
       <div className={`flex flex-col items-center gap-4 text-center ${dir === 'rtl' ? 'md:text-right' : 'md:text-left'} md:flex-row`}>
         <Avatar className="h-24 w-24 border-4 border-accent">
           <AvatarImage src={user?.photoURL || undefined} alt={user?.displayName || 'User'} />
